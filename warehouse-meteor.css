@@ -1,0 +1,88 @@
+/* CSS declarations go here */
+.searched {
+  background-color: green;
+}
+
+.selected {
+	background-color: gray;
+}
+
+.moveFrom {
+  border: 1px;
+  border-color: yellow;
+}
+.moveTo {
+  border: 1px;
+  border-color: blue;
+  background-color: blue;
+}
+.moving:hover {
+  background-color: red;
+}
+
+#searchbar {
+  position: fixed;
+  width: 180px;
+  top: 5px;
+  right: 5px;
+}
+
+.menu {
+  position: fixed;
+  width: 200px;
+  top: 40px;
+  right: 5px;
+  bottom: 5px;
+  background-color: lightgray;
+  border: 3px solid gray;
+}
+
+.logbook {
+  position: fixed;
+  width: fill;
+  height: 200px;
+  bottom: 5px;
+  right: 210px;
+  left: 5px;
+  background-color: lightgray;
+  border: 3px solid gray;
+}
+
+.add {
+  background-color: green;
+}
+
+.add.selected {
+  background-color: blue;
+}
+
+.add-details {
+  background-color: yellow;
+}
+
+.remove {
+  background-color: green;
+}
+
+.remove.selected {
+  background-color: blue;
+}
+
+.remove-details {
+  background-color: yellow;
+}
+
+.move {
+  background-color: green;
+}
+
+.move.selected {
+  background-color: blue;
+}
+
+.move-details {
+  background-color: yellow;
+}
+.hidden {
+  display: none;
+}

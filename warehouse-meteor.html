@@ -1,0 +1,155 @@
+<head>
+  <title>WBS Warehouse Management</title>
+</head>
+
+<body>
+  {{> warehouse}}
+  <div class="searchbar">
+    {{> searchbar}}
+  </div>
+  <div class="menu">
+    {{> menu}}
+  </div>
+  <div class="logbook">
+    {{> logbook}}
+  </div>
+</body>
+
+<template name="searchbar">
+  <input type="text" id="searchbar"><br>
+</template>
+
+<template name="warehouse">
+  <h2>Shelf {{shelfNumber}}</h2>
+
+  <table border="1px">
+    <thead>
+      <tr>
+        <th>#</th>
+        {{#each loop "1" "5"}}
+          <th colspan="2">Bay {{i}}</th>
+        {{/each}}
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th>Level 4</th>
+        {{#each pallets "1" "6" "4"}}
+          <td>{{> pallet}}</td>
+        {{/each}}
+      </tr>
+      <tr>
+        <th>Level 3</th>
+        {{#each pallets "1" "6" "3"}}
+          <td>{{> pallet}}</td>
+        {{/each}}
+      </tr>
+      <tr>
+        <th>Level 2</th>
+        {{#each pallets "1" "6" "2"}}
+          <td>{{> pallet}}</td>
+        {{/each}}
+      </tr>
+      <tr>
+        <th>Level 1</th>
+        {{#each pallets "1" "6" "1"}}
+          <td>{{> pallet}}</td>
+        {{/each}}
+      </tr>
+    </tbody>
+  </table>
+
+  <input type="button" value="Click"/>
+</template>
+
+<template name="pallet">
+  <div class="pallet {{searched}} {{selected}} {{moveFrom}} {{moveTo}} {{moving}}"> 
+  	<ul>
+      <li>Bay: {{bay}}</li>
+      <li>SubBay: {{subbay}}</li>
+      <li>Level: {{level}}</li>
+    </ul>
+    {{#each stocks}}
+      {{type}}: {{qty}}
+    {{/each}}
+  </div>
+</template>
+
+<template name="menu">
+  {{#with curSelected}}
+    {{#if totalStock}}
+      <h2>Total Stock</h2>
+      {{#each stocks}}
+        <div class="menu-stock">
+          {{type}}: {{qty}}
+        </div>
+      {{/each}}
+    {{else}}
+      <h2>Selected pallet: #{{pID}}</h2>
+      <ul>
+        <li>Bay: {{bay}}</li>
+        <li>Bay: {{subbay}}</li>
+        <li>Bay: {{level}}</li>
+      </ul>
+      {{#each stocks}}
+        <div class="menu-stock">
+          {{type}}: {{qty}}
+          <div class="add {{selected "add"}}">
+            Add
+          </div>
+          <div class="remove {{selected "remove"}}">
+            Remove
+          </div>
+          <div class="move {{selected "move"}}">
+            Move
+          </div>
+
+          <div class="add-details {{hidden "add"}}">
+            <form>
+              Qty: <input type="text" id="qty{{type}}"><br>
+              Comment: <input type="text" id="comment{{type}}"><br>
+              <input type="button" value="Update" class="updateAdd"/>
+            </form>
+          </div>
+          <div class="remove-details {{hidden "remove"}}">
+            <form>
+              Qty: <input type="text" id="qty{{type}}"><br>
+              Comment: <input type="text" id="comment{{type}}"><br>
+              <input type="button" value="Update" class="updateRemove"/>
+            </form>
+          </div>
+          <div class="move-details {{hidden "move"}}">
+            <form>
+              Qty: <input type="text" id="qty{{type}}"><br>
+              Destination: {{moveDest}}<br>
+              Comment: <input type="text" id="comment{{type}}"><br>
+              <input type="button" value="Update" class="updateMove"/>
+            </form>
+          </div>
+        </div>
+      {{/each}}
+      <div class="add-new">
+        Add new
+      </div>
+      <div class="add-new-details {{hidden "add-new"}}">
+        <form>
+          Type:
+          <select class="select add-new">
+            {{#each stockTypes}}
+              <option>{{type}}</option>
+            {{/each}}
+          </select>
+          Qty: <input type="text" id="qty-new"><br>
+          Comment: <input type="text" id="comment-new"><br>
+          <input type="button" value="Update" class="updateAddNew"/>
+        </form>
+      </div>
+    {{/if}}
+  {{/with}}
+</template>
+
+<template name="logbook">
+  {{#each entries}}
+    {{action}} {{qty}} {{type}} from pallet {{pallet}}: {{comment}}<br>
+  {{/each}}
+</template>
