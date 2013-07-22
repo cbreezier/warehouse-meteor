@@ -33,25 +33,25 @@
     </thead>
     <tbody>
       <tr>
-        <th>Level 4</th>
+        <th>Level 3</th>
         {{#each pallets "1" "6" "4"}}
           <td>{{> pallet}}</td>
         {{/each}}
       </tr>
       <tr>
-        <th>Level 3</th>
+        <th>Level 2</th>
         {{#each pallets "1" "6" "3"}}
           <td>{{> pallet}}</td>
         {{/each}}
       </tr>
       <tr>
-        <th>Level 2</th>
+        <th>Level 1</th>
         {{#each pallets "1" "6" "2"}}
           <td>{{> pallet}}</td>
         {{/each}}
       </tr>
       <tr>
-        <th>Level 1</th>
+        <th>Ground</th>
         {{#each pallets "1" "6" "1"}}
           <td>{{> pallet}}</td>
         {{/each}}
@@ -64,13 +64,8 @@
 
 <template name="pallet">
   <div class="pallet {{searched}} {{selected}} {{moveFrom}} {{moveTo}} {{moving}}"> 
-  	<ul>
-      <li>Bay: {{bay}}</li>
-      <li>SubBay: {{subbay}}</li>
-      <li>Level: {{level}}</li>
-    </ul>
     {{#each stocks}}
-      {{type}}: {{qty}}
+      {{type}}: {{qty}}<br>
     {{/each}}
   </div>
 </template>
@@ -120,9 +115,9 @@
           </div>
           <div class="move-details {{hidden "move"}}">
             <form>
-              Qty: <input type="text" id="qty{{type}}"><br>
               Destination: {{moveDest}}<br>
-              Comment: <input type="text" id="comment{{type}}"><br>
+              Qty: <input type="text" id="qty{{type}}" class="qtyMove" {{destSet}}><br>
+              Comment: <input type="text" id="comment{{type}}" class="commentMove" {{destSet}}><br>
               <input type="button" value="Update" class="updateMove"/>
             </form>
           </div>

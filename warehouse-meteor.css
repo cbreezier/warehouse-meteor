@@ -20,6 +20,11 @@
   background-color: red;
 }
 
+.pallet {
+  width: 100px;
+  height: 100px;
+}
+
 #searchbar {
   position: fixed;
   width: 180px;

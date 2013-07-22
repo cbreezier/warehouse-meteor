@@ -156,6 +156,10 @@ if (Meteor.isClient) {
     return Session.get("moveTo");
   }
 
+  Template.menu.destSet = function () {
+    return Session.equals("moveTo", 'none') ? "disabled" : ''
+  }
+
   Template.menu.events({
     'click .add' : function () {
       console.log(this.pallet + this.type);
