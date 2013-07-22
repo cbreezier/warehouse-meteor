@@ -20,13 +20,19 @@
 </template>
 
 <template name="warehouse">
-  <h2>Shelf {{shelfNumber}}</h2>
+  {{#each shelves}}
+    {{> shelf this}}
+  {{/each}}
+</template>
 
-  <table border="1px">
+<template name="shelf">
+  <h2>Shelf {{shelfNum}}: {{startShelf}} to {{endShelf}}</h2>
+
+  <table border="1px" class="shelf {{shelfNum}}">
     <thead>
       <tr>
         <th>#</th>
-        {{#each loop "1" "5"}}
+        {{#each loopShelf}}
           <th colspan="2">Bay {{i}}</th>
         {{/each}}
       </tr>
@@ -34,25 +40,25 @@
     <tbody>
       <tr>
         <th>Level 3</th>
-        {{#each pallets "1" "6" "4"}}
+        {{#each pallets 4}}
           <td>{{> pallet}}</td>
         {{/each}}
       </tr>
       <tr>
         <th>Level 2</th>
-        {{#each pallets "1" "6" "3"}}
+        {{#each pallets 3}}
           <td>{{> pallet}}</td>
         {{/each}}
       </tr>
       <tr>
         <th>Level 1</th>
-        {{#each pallets "1" "6" "2"}}
+        {{#each pallets 2}}
           <td>{{> pallet}}</td>
         {{/each}}
       </tr>
       <tr>
         <th>Ground</th>
-        {{#each pallets "1" "6" "1"}}
+        {{#each pallets 1}}
           <td>{{> pallet}}</td>
         {{/each}}
       </tr>
@@ -64,6 +70,7 @@
 
 <template name="pallet">
   <div class="pallet {{searched}} {{selected}} {{moveFrom}} {{moveTo}} {{moving}}"> 
+    {{bay}}<br>{{subbay}}<br>{{level}}
     {{#each stocks}}
       {{type}}: {{qty}}<br>
     {{/each}}
@@ -144,7 +151,12 @@
 </template>
 
 <template name="logbook">
-  {{#each entries}}
-    {{action}} {{qty}} {{type}} from pallet {{pallet}}: {{comment}}<br>
-  {{/each}}
+  <div class="logtop">
+    Logbook
+  </div>
+  <div class="logcontent {{hidden}}">
+    {{#each entries}}
+      {{action}} {{qty}} {{type}} from pallet {{pallet}}: {{comment}}<br>
+    {{/each}}
+  </div>
 </template>

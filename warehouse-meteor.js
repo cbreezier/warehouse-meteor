@@ -25,22 +25,60 @@ if (Meteor.isClient) {
   Session.setDefault("moving", false);
   Session.setDefault("moveFrom", 'none');
   Session.setDefault("moveTo", 'none');
-  Template.warehouse.shelfNumber = 1;
+  Session.setDefault("log_hidden", true);
 
-  Template.warehouse.loop = function (start, end) {
+  Template.warehouse.shelves = function () {
+    return [{shelfNum: 1, startShelf: 1, endShelf: 5},
+            {shelfNum: 2, startShelf: 6, endShelf: 9},
+            {shelfNum: 3, startShelf: 10, endShelf: 13},
+            {shelfNum: 4, startShelf: 14, endShelf: 16}];
+  }
+
+  Template.shelf.loop = function (start, end) {
     var doc = new Array;
-    for (var i = start; i <= end; i++) {
-      doc.push({i: i});
+    if (end > start) {
+      for (var i = start; i <= end; i++) {
+        doc.push({i: i});
+      }
+    } else {
+      for (var i = start; i <= end; i--) {
+        doc.push({i: i});
+      }
     }
+    
     return doc;
   }
 
-  Template.warehouse.pallets = function (start, end, level) {
-    return Pallets.find({bay: {$gt: +start},
-                         bay: {$lt: +end},
-                         level: +level},
+  Template.shelf.loopShelf = function () {
+    var arr = new Array;
+    console.log("Looping through bays "+this.startShelf+" to "+this.endShelf);
+    for (var i = this.startShelf; i <= this.endShelf; i++) {
+      arr.push({i: i});
+    }
+
+    return arr;
+  }
+
+  Template.shelf.pallets = function (level) {
+    start = this.startShelf - 1;
+    end = this.endShelf + 1;
+    console.log("Finding: "+start+end+level)
+    return Pallets.find({bay: {$gt: start, $lt: end},
+                         level: level},
                    {sort: {bay: 1, subbay: 1}});
   }
+
+  Template.shelf.events({
+    'click input' : function () {
+      console.log("Total db entries: "+Pallets.find({}).count());
+      console.log("Search term: "+Session.get("searchTerm"));
+      console.log(this);
+      // template data, if any, is available in 'this'
+      if (typeof console !== 'undefined') {
+        console.log("You pressed the button");
+      }
+    }
+  });
 
   Template.searchbar.events({
     'keyup input#searchbar' : function () {
@@ -110,17 +148,6 @@ if (Meteor.isClient) {
     'mouseover': function () {
       if (Session.equals("moving", true)) {
         Session.set("moveHover", this.pID);
-      }
-    }
-  });
-
-  Template.warehouse.events({
-    'click input' : function () {
-      console.log("Total db entries: "+Pallets.find({}).count());
-      console.log("Search term: "+Session.get("searchTerm"));
-      // template data, if any, is available in 'this'
-      if (typeof console !== 'undefined') {
-        console.log("You pressed the button");
       }
     }
   });
@@ -275,6 +302,22 @@ if (Meteor.isClient) {
   Template.logbook.entries = function () {
     return LogBook.find();
   }
+
+  Template.logbook.hidden = function () {
+    return Session.equals("log_hidden", true) ? "hidden" : '';
+  }
+
+  Template.logbook.events({
+    'click .logtop' : function () {
+      if (Session.equals("log_hidden", true)) {
+        console.log("Log is no longer hidden");
+        Session.set("log_hidden", false);
+      } else {
+        console.log("Log is now hidden");
+        Session.set("log_hidden", true);
+      }
+    }
+  });
 }
 
 if (Meteor.isServer) {
@@ -355,7 +398,7 @@ if (Meteor.isServer) {
       }
     });
     if (Pallets.find().count() == 0) {
-      for (var i = 1; i <= 40; i++) {
+      for (var i = 1; i <= 128; i++) {
         var curBay = Math.floor ((i-1) / 8) + 1;
         var subBay = Math.floor ((i-1) / 4) % 2;
         var level = ((i-1) % 4) + 1;
