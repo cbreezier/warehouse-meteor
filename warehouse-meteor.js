@@ -2,6 +2,8 @@ Pallets = new Meteor.Collection("pallets");
 StockData = new Meteor.Collection("stockdata");
 LogBook = new Meteor.Collection("logbook");
 
+var PALLET_MAX_VOLUME = 120*120*160;
+
 var stockLevel = function (id, type) {
   Meteor.call('stockLevel', id, type, function(err, data) {
     if (err) {
@@ -98,6 +100,8 @@ if (Meteor.isClient) {
   }
 
   Template.pallet.boxes = function () {
+    console.log(this.type);
+    console.log(StockData.findOne({type: this.type}));
     var perbox = StockData.findOne({type: this.type}).perbox;
     console.log ("boxes: "+this.qty+"\/"+perbox);
     return (this.qty/perbox).toFixed(2);
@@ -120,6 +124,24 @@ if (Meteor.isClient) {
     return Session.equals("selected_pallet", this.pID) ? "selected" : '';
   }
 
+  Template.pallet.height = function () {
+    var pallet = Pallets.findOne({pID: this.pID});
+    var totalVolume = 0;
+    if (pallet.stock.length === 0) {
+      return 0;
+    } else {
+      for (var i = 0; i < pallet.stock.length; i++) {
+        var type = pallet.stock[i].type;
+        var stock = StockData.findOne({type: type});
+        var volume = stock.length * stock.width * stock.height;
+        console.log("Add volume: "+volume+"*"+pallet.stock[i].qty);
+        totalVolume += volume*pallet.stock[i].qty;
+      }
+      console.log("Volume: "+totalVolume);
+      return totalVolume/PALLET_MAX_VOLUME*100;
+    }
+  }
+
   Template.pallet.moveFrom = function () {
     if (Session.equals("moving", true)) {
       return Session.equals("moveFrom", this.pID) ? "moveFrom" : '';
@@ -140,17 +162,21 @@ if (Meteor.isClient) {
 
   Template.pallet.events({
     'click': function () {
+      var id = this.pID;
+      if (id === undefined) {
+        id = this.pallet;
+      }
       if (Session.equals("moving", false)) {
-        if (Session.equals("selected_pallet", this.pID)) {
+        if (Session.equals("selected_pallet", id)) {
           //If it's already selected, select total stock
           Session.set("selected_pallet", 0);
           console.log("Total stock selected");
         } else {
-          Session.set("selected_pallet", this.pID);
-          console.log("Selected: " + this.pID);
+          Session.set("selected_pallet", id);
+          console.log("Selected: " + id);
         }
       } else {
-        Session.set("moveTo", this.pID);
+        Session.set("moveTo", id);
       }
     },
     'mouseover': function () {
@@ -450,7 +476,7 @@ if (Meteor.isServer) {
         }
       }
     });
-    if (Pallets.find().count() == 0) {
+    if (Pallets.find().count() === 0) {
       for (var i = 1; i <= 128; i++) {
         var curBay = Math.floor ((i-1) / 8) + 1;
         var subBay = Math.floor ((i-1) / 4) % 2;
@@ -459,11 +485,11 @@ if (Meteor.isServer) {
       }
       Pallets.insert({pID: 0, bay: 0, subbay: 0, level: 0, stock: []});
     }
-    if (StockData.find().count() == 0) {
-      StockData.insert({type: 'EM36LED-B'});
-      StockData.insert({type: 'EMR15LED'});
-      StockData.insert({type: 'EM18LED-B'});
-      StockData.insert({type: 'EM18LED'});
+    if (StockData.find().count() === 0) {
+      StockData.insert({type: 'EM36LED-B', perbox: 6, length: 125, width: 16, height: 6});
+      StockData.insert({type: 'EMR15LED', perbox: 6, length: 125, width: 16, height: 6});
+      StockData.insert({type: 'EM18LED-B', perbox: 6, length: 125, width: 16, height: 6});
+      StockData.insert({type: 'EM18LED', perbox: 6, length: 125, width: 16, height: 6});
     }
   });
 }

@@ -72,12 +72,16 @@
 </template>
 
 <template name="pallet">
-  <div class="pallet {{searched}} {{selected}} {{moveFrom}} {{moveTo}} {{moving}}"> 
-    {{#each stocks}}
-      <div class="palletEntry">
-        <b>{{type}}</b>: {{qty}} pcs ({{boxes}} boxes)
-      </div>
-    {{/each}}
+  <div class="wrapper">
+    <div class="pallet {{searched}} {{moveFrom}} {{moveTo}} {{moving}}"> 
+      {{#each stocks}}
+        <div class="palletEntry">
+          <b>{{type}}</b>: {{qty}} pcs ({{boxes}} boxes)
+        </div>
+      {{/each}}
+    </div>
+    <div class="background {{selected}}"></div>
+    <div class="fullness" style="height: {{height}}px"></div>
   </div>
 </template>
 

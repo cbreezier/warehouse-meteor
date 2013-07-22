@@ -1,23 +1,44 @@
 /* CSS declarations go here */
 .searched {
-  background-color: green;
+  border: 2px solid orange;
 }
 
-.selected {
-	background-color: #e0e0e0;
+.wrapper {
+  position: relative;
+  width: 100px;
+  height: 100px;
+}
+
+.background {
+  position: absolute;
+  z-index: 0;
+  width: 100px;
+  height: 100px;
+}
+.background.selected {
+  background-color: #e0e0e0;
+}
+
+.fullness {
+  position: absolute;
+  z-index: 1;
+  width: 100px;
+  bottom: 0px;
+  background-color: lightgreen;
 }
 
 .moveFrom {
-  border: 1px;
-  border-color: yellow;
+  border: 1px solid red;
 }
 .moveTo {
-  border: 1px;
-  border-color: blue;
-  background-color: blue;
+  border: 2px solid blue;
 }
 .moving:hover {
-  background-color: red;
+  border: 2px dashed blue;
+}
+
+.wrapper {
+  position: relative;
 }
 
 .shelf {
@@ -34,6 +55,8 @@
 }
 
 .pallet {
+  position: absolute;
+  z-index: 2;
   width: 100px;
   height: 100px;
 }
@@ -56,7 +79,7 @@
   right: 5px;
   bottom: 5px;
   background-color: lightgray;
-  border: 3px solid gray;
+  border: 1px solid gray;
 }
 
 .logbook {
@@ -64,7 +87,7 @@
   bottom: 0px;
   right: 210px;
   left: 0px;
-  border: 3px solid gray;
+  border: 1px solid gray;
 }
 
 .logbar {
@@ -84,7 +107,7 @@
   width: 700px;
   top: 0px;
   left: 300px;
-  border: 3px solid gray;
+  border: 1px solid gray;
 }
 
 .bookoutbar {
