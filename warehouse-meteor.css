@@ -4,7 +4,7 @@
 }
 
 .selected {
-	background-color: gray;
+	background-color: #e0e0e0;
 }
 
 .moveFrom {
@@ -20,9 +20,26 @@
   background-color: red;
 }
 
+.shelf {
+  border-collapse: collapse;
+  border: 2px solid black;
+}
+
+.shelf td {
+  border: 2px solid black;
+}
+
+.shelf th {
+  border: 1px solid black;
+}
+
 .pallet {
   width: 100px;
   height: 100px;
+}
+
+.palletEntry {
+  border: 1px dotted blue;
 }
 
 #searchbar {
@@ -44,14 +61,13 @@
 
 .logbook {
   position: fixed;
-  width: fill;
   bottom: 0px;
   right: 210px;
   left: 0px;
   border: 3px solid gray;
 }
 
-.logtop {
+.logbar {
   width: fill;
   border: 1px solid gray;
   background-color: lightgray;
@@ -59,6 +75,26 @@
 
 .logcontent {
   height: 120px;
+  width: fill;
+  background-color: white;
+}
+
+.bookout {
+  position: fixed;
+  width: 700px;
+  top: 0px;
+  left: 300px;
+  border: 3px solid gray;
+}
+
+.bookoutbar {
+  width: fill;
+  border: 1px solid gray;
+  background-color: lightgray;
+}
+
+.bookoutcontent {
+  height: 300px;
   width: fill;
   background-color: white;
 }

@@ -26,6 +26,8 @@ if (Meteor.isClient) {
   Session.setDefault("moveFrom", 'none');
   Session.setDefault("moveTo", 'none');
   Session.setDefault("log_hidden", true);
+  Session.setDefault("bookout_hidden", true);
+  Session.setDefault("current_bookout", 'none');
 
   Template.warehouse.shelves = function () {
     return [{shelfNum: 1, startShelf: 1, endShelf: 5},
@@ -93,6 +95,12 @@ if (Meteor.isClient) {
                                      subbay: this.subbay,
                                      level: this.level});
     return curPallet && curPallet.stock;
+  }
+
+  Template.pallet.boxes = function () {
+    var perbox = StockData.findOne({type: this.type}).perbox;
+    console.log ("boxes: "+this.qty+"\/"+perbox);
+    return (this.qty/perbox).toFixed(2);
   }
 
   Template.pallet.searched = function () {
@@ -308,7 +316,7 @@ if (Meteor.isClient) {
   }
 
   Template.logbook.events({
-    'click .logtop' : function () {
+    'click .logbar' : function () {
       if (Session.equals("log_hidden", true)) {
         console.log("Log is no longer hidden");
         Session.set("log_hidden", false);
@@ -316,6 +324,51 @@ if (Meteor.isClient) {
         console.log("Log is now hidden");
         Session.set("log_hidden", true);
       }
+    }
+  });
+
+  Template.bookout.bookout_name = function () {
+    var companyName = Session.get("current_bookout");
+    if (companyName === '') {
+      return "<empty name>";
+    } else {
+      return companyName;
+    }
+  }
+
+  Template.bookout.hidden = function () {
+    return Session.equals("bookout_hidden", true) ? "hidden" : '';
+  }
+
+  Template.bookout.no_current_bookout = function () {
+    return Session.equals("current_bookout", 'none');
+  }
+
+  Template.bookout.events({
+    'click .bookoutbar' : function () {
+      if (Session.equals("bookout_hidden", true)) {
+        console.log("Bookout is no longer hidden");
+        Session.set("bookout_hidden", false);
+      } else {
+        console.log("Bookout is now hidden");
+        Session.set("bookout_hidden", true);
+      }
+    },
+    'click .newBookout' : function () {
+      Session.set("current_bookout", '');
+    },
+    'keyup #bookoutCompany' : function () {
+      var companyName = $('#bookoutCompany').val().trim();
+      Session.set("current_bookout", companyName);
+    },
+
+    'click .confirmBookout' : function() {
+
+    },
+    'click .cancelBookout' : function() {
+      $('#bookoutCompany').val('');
+      Session.set("current_bookout", 'none');
+      Session.set("bookout_hidden", true);
     }
   });
 }

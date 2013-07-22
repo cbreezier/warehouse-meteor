@@ -4,6 +4,9 @@
 
 <body>
   {{> warehouse}}
+  <div class="bookout">
+    {{> bookout}}
+  </div>
   <div class="searchbar">
     {{> searchbar}}
   </div>
@@ -28,7 +31,7 @@
 <template name="shelf">
   <h2>Shelf {{shelfNum}}: {{startShelf}} to {{endShelf}}</h2>
 
-  <table border="1px" class="shelf {{shelfNum}}">
+  <table class="shelf {{shelfNum}}">
     <thead>
       <tr>
         <th>#</th>
@@ -70,9 +73,10 @@
 
 <template name="pallet">
   <div class="pallet {{searched}} {{selected}} {{moveFrom}} {{moveTo}} {{moving}}"> 
-    {{bay}}<br>{{subbay}}<br>{{level}}
     {{#each stocks}}
-      {{type}}: {{qty}}<br>
+      <div class="palletEntry">
+        <b>{{type}}</b>: {{qty}} pcs ({{boxes}} boxes)
+      </div>
     {{/each}}
   </div>
 </template>
@@ -150,8 +154,28 @@
   {{/with}}
 </template>
 
+<template name="bookout">
+  <div class="bookoutcontent {{hidden}}">
+    {{#if no_current_bookout}}
+      <input type="button" value="New Bookout" class="button newBookout"/>
+      <input type="button" value="Select Bookout" class="button selectBookout"/>
+    {{else}}
+      <form>
+        Invoice Number: <input type="text" id="bookoutNumber"><br>
+        Company: <input type="text" id="bookoutCompany"><br>
+        Order:
+        <input type="button" value="Confirm Bookout" class="button confirmBookout"/>
+        <input type="button" value="Cancel Bookout" class="button cancelBookout"/>
+      </form>
+    {{/if}}
+  </div>
+  <div class="bookoutbar">
+    Current Bookout: {{bookout_name}}
+  </div>
+</template>
+
 <template name="logbook">
-  <div class="logtop">
+  <div class="logbar">
     Logbook
   </div>
   <div class="logcontent {{hidden}}">
