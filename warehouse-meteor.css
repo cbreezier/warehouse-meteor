@@ -74,6 +74,7 @@
 
 .menu {
   position: fixed;
+  z-index: 100;
   width: 200px;
   top: 40px;
   right: 5px;
@@ -84,6 +85,7 @@
 
 .logbook {
   position: fixed;
+  z-index: 100;
   bottom: 0px;
   right: 210px;
   left: 0px;
@@ -104,6 +106,7 @@
 
 .bookout {
   position: fixed;
+  z-index: 100;
   width: 700px;
   top: 0px;
   left: 300px;

@@ -133,7 +133,7 @@ if (Meteor.isClient) {
       for (var i = 0; i < pallet.stock.length; i++) {
         var type = pallet.stock[i].type;
         var stock = StockData.findOne({type: type});
-        var volume = stock.length * stock.width * stock.height;
+        var volume = stock.uLength * stock.uWidth * stock.uHeight;
         console.log("Add volume: "+volume+"*"+pallet.stock[i].qty);
         totalVolume += volume*pallet.stock[i].qty;
       }
@@ -476,6 +476,12 @@ if (Meteor.isServer) {
         }
       }
     });
+    if (StockData.find().count() === 0) {
+      StockData.insert({type: 'EM36LED-B', perbox: 6, uLength: 125, uWidth: 16, uHeight: 6});
+      StockData.insert({type: 'EMR15LED', perbox: 6, uLength: 125, uWidth: 16, uHeight: 6});
+      StockData.insert({type: 'EM18LED-B', perbox: 6, uLength: 125, uWidth: 16, uHeight: 6});
+      StockData.insert({type: 'EM18LED', perbox: 6, uLength: 125, uWidth: 16, uHeight: 6});
+    }
     if (Pallets.find().count() === 0) {
       for (var i = 1; i <= 128; i++) {
         var curBay = Math.floor ((i-1) / 8) + 1;
@@ -484,12 +490,6 @@ if (Meteor.isServer) {
         Pallets.insert({pID: i, bay: curBay, subbay: subBay, level: level, stock: []});
       }
       Pallets.insert({pID: 0, bay: 0, subbay: 0, level: 0, stock: []});
-    }
-    if (StockData.find().count() === 0) {
-      StockData.insert({type: 'EM36LED-B', perbox: 6, length: 125, width: 16, height: 6});
-      StockData.insert({type: 'EMR15LED', perbox: 6, length: 125, width: 16, height: 6});
-      StockData.insert({type: 'EM18LED-B', perbox: 6, length: 125, width: 16, height: 6});
-      StockData.insert({type: 'EM18LED', perbox: 6, length: 125, width: 16, height: 6});
     }
   });
 }
