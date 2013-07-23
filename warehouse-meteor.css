@@ -45,7 +45,7 @@
   border-collapse: collapse;
 }
 .shelf.small {
-  font-size: 50%;
+  font-size: 40%;
 }
 .shelf.small.left {
   float: left;
