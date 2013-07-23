@@ -1,6 +1,6 @@
 /* CSS declarations go here */
 .searched {
-  border: 2px solid orange;
+  border: 2px solid red;
 }
 
 .workspace {
@@ -54,7 +54,7 @@
   float: right;
 }
 .shelf td {
-  border: 2px solid black;
+  border: 1px solid gray;
 }
 .shelf th {
   border: 1px solid black;
@@ -68,7 +68,7 @@
 }
 
 .palletEntry {
-  border: 1px dotted blue;
+  
 }
 
 #searchbar {
@@ -107,6 +107,7 @@
 .logcontent {
   height: 120px;
   width: fill;
+  overflow: scroll;
   background-color: white;
 }
 
