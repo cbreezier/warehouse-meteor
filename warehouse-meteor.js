@@ -121,6 +121,16 @@ if (Meteor.isClient) {
     return (this.qty/perbox).toFixed(2);
   }
 
+  Template.pallet.size = function () {
+    var width = $(window).width();
+
+    if (Session.equals("displaySize", 'large')) {
+      return width*8/120+'px';
+    } else {
+      return width*8/240+'px';
+    }
+  }
+
   Template.pallet.searched = function () {
     var searchTerm = Session.get("searchTerm");
     if (searchTerm !== '') {

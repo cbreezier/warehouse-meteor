@@ -6,42 +6,29 @@
 .workspace {
   width: 80%;
   float: left;
-  margin: 25px auto 200px auto;
+  margin: 20px auto 130px auto;
 }
 
 .wrapper {
   position: relative;
-  width: 100px;
-  height: 100px;
-}
-.wrapper.small {
-  width: 50px;
-  height: 50px;
 }
 
 .background {
   position: absolute;
+  width: 100%;
+  height: 100%;
   z-index: 0;
-  width: 100px;
-  height: 100px;
 }
 .background.selected {
   background-color: #e0e0e0;
 }
-.background.small {
-  width: 50px;
-  height: 50px;
-}
 
 .fullness {
   position: absolute;
+  width: 100%;
   z-index: 1;
-  width: 100px;
   bottom: 0px;
   background-color: lightgreen;
-}
-.fullness.small {
-  width: 50px;
 }
 
 .moveFrom {
@@ -75,13 +62,9 @@
 
 .pallet {
   position: absolute;
+  width: 100%;
+  height: 100%;
   z-index: 2;
-  width: 100px;
-  height: 100px;
-}
-.pallet.small {
-  width: 50px;
-  height: 50px;
 }
 
 .palletEntry {
