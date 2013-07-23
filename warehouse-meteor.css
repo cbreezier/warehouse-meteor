@@ -113,9 +113,11 @@
 .bookout {
   position: fixed;
   z-index: 100;
-  width: 700px;
+  width: 50%;
   top: 0px;
-  left: 300px;
+  left: 0;
+  right: 0;
+  margin: auto;
   border: 1px solid gray;
 }
 
