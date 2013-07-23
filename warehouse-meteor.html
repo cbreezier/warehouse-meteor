@@ -3,7 +3,9 @@
 </head>
 
 <body>
-  {{> warehouse}}
+  <div class="workspace">
+    {{> warehouse}}
+  </div>
   <div class="bookout">
     {{> bookout}}
   </div>
@@ -29,59 +31,60 @@
 </template>
 
 <template name="shelf">
-  <h2>Shelf {{shelfNum}}: {{startShelf}} to {{endShelf}}</h2>
+  <div class="shelf {{shelfNum}} {{hSmall}} {{posFloat}}">
+    <h2>Shelf {{shelfNum}}: {{startShelf}} to {{endShelf}}</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          {{#each loopShelf}}
+            <th colspan="2">Bay {{i}}</th>
+          {{/each}}
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th>Level 3</th>
+          {{#each pallets 4}}
+            <td>{{> pallet}}</td>
+          {{/each}}
+        </tr>
+        <tr>
+          <th>Level 2</th>
+          {{#each pallets 3}}
+            <td>{{> pallet}}</td>
+          {{/each}}
+        </tr>
+        <tr>
+          <th>Level 1</th>
+          {{#each pallets 2}}
+            <td>{{> pallet}}</td>
+          {{/each}}
+        </tr>
+        <tr>
+          <th>Ground</th>
+          {{#each pallets 1}}
+            <td>{{> pallet}}</td>
+          {{/each}}
+        </tr>
+      </tbody>
+    </table>
 
-  <table class="shelf {{shelfNum}}">
-    <thead>
-      <tr>
-        <th>#</th>
-        {{#each loopShelf}}
-          <th colspan="2">Bay {{i}}</th>
-        {{/each}}
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <th>Level 3</th>
-        {{#each pallets 4}}
-          <td>{{> pallet}}</td>
-        {{/each}}
-      </tr>
-      <tr>
-        <th>Level 2</th>
-        {{#each pallets 3}}
-          <td>{{> pallet}}</td>
-        {{/each}}
-      </tr>
-      <tr>
-        <th>Level 1</th>
-        {{#each pallets 2}}
-          <td>{{> pallet}}</td>
-        {{/each}}
-      </tr>
-      <tr>
-        <th>Ground</th>
-        {{#each pallets 1}}
-          <td>{{> pallet}}</td>
-        {{/each}}
-      </tr>
-    </tbody>
-  </table>
-
-  <input type="button" value="Click"/>
+    <input type="button" value="Click"/>
+  </div>
 </template>
 
 <template name="pallet">
-  <div class="wrapper">
-    <div class="pallet {{searched}} {{moveFrom}} {{moveTo}} {{moving}}"> 
+  <div class="wrapper {{hSmall}}">
+    <div class="pallet {{searched}} {{moveFrom}} {{moveTo}} {{moving}} {{hSmall}}"> 
       {{#each stocks}}
         <div class="palletEntry">
           <b>{{type}}</b>: {{qty}} pcs ({{boxes}} boxes)
         </div>
       {{/each}}
     </div>
-    <div class="background {{selected}}"></div>
-    <div class="fullness" style="height: {{height}}px"></div>
+    <div class="background {{selected}} {{hSmall}}"></div>
+    <div class="fullness {{hSmall}}" style="height: {{height}}px"></div>
   </div>
 </template>
 

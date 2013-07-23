@@ -3,10 +3,20 @@
   border: 2px solid orange;
 }
 
+.workspace {
+  width: 80%;
+  float: left;
+  margin: 25px auto 200px auto;
+}
+
 .wrapper {
   position: relative;
   width: 100px;
   height: 100px;
+}
+.wrapper.small {
+  width: 50px;
+  height: 50px;
 }
 
 .background {
@@ -18,6 +28,10 @@
 .background.selected {
   background-color: #e0e0e0;
 }
+.background.small {
+  width: 50px;
+  height: 50px;
+}
 
 .fullness {
   position: absolute;
@@ -25,6 +39,9 @@
   width: 100px;
   bottom: 0px;
   background-color: lightgreen;
+}
+.fullness.small {
+  width: 50px;
 }
 
 .moveFrom {
@@ -37,19 +54,21 @@
   border: 2px dashed blue;
 }
 
-.wrapper {
-  position: relative;
-}
-
 .shelf {
   border-collapse: collapse;
-  border: 2px solid black;
 }
-
+.shelf.small {
+  font-size: 50%;
+}
+.shelf.small.left {
+  float: left;
+}
+.shelf.small.right {
+  float: right;
+}
 .shelf td {
   border: 2px solid black;
 }
-
 .shelf th {
   border: 1px solid black;
 }
@@ -60,6 +79,10 @@
   width: 100px;
   height: 100px;
 }
+.pallet.small {
+  width: 50px;
+  height: 50px;
+}
 
 .palletEntry {
   border: 1px dotted blue;
@@ -67,7 +90,7 @@
 
 #searchbar {
   position: fixed;
-  width: 180px;
+  width: 16%;
   top: 5px;
   right: 5px;
 }
@@ -75,7 +98,7 @@
 .menu {
   position: fixed;
   z-index: 100;
-  width: 200px;
+  width: 18%;
   top: 40px;
   right: 5px;
   bottom: 5px;
@@ -87,8 +110,8 @@
   position: fixed;
   z-index: 100;
   bottom: 0px;
-  right: 210px;
   left: 0px;
+  width: 80%;
   border: 1px solid gray;
 }
 

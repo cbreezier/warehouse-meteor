@@ -30,12 +30,17 @@ if (Meteor.isClient) {
   Session.setDefault("log_hidden", true);
   Session.setDefault("bookout_hidden", true);
   Session.setDefault("current_bookout", 'none');
+  Session.setDefault("displaySize", 'small');
+
+  Handlebars.registerHelper('hSmall', function () {
+    return Session.equals("displaySize", 'small') ? "small" : ''
+  });
 
   Template.warehouse.shelves = function () {
-    return [{shelfNum: 1, startShelf: 1, endShelf: 5},
-            {shelfNum: 2, startShelf: 6, endShelf: 9},
-            {shelfNum: 3, startShelf: 10, endShelf: 13},
-            {shelfNum: 4, startShelf: 14, endShelf: 16}];
+    return [{shelfNum: 1, startShelf: 1, endShelf: 5, posFloat: 'left'},
+            {shelfNum: 2, startShelf: 6, endShelf: 9, posFloat: 'right'},
+            {shelfNum: 3, startShelf: 10, endShelf: 13, posFloat: 'left'},
+            {shelfNum: 4, startShelf: 14, endShelf: 16, posFloat: 'right'}];
   }
 
   Template.shelf.loop = function (start, end) {
@@ -77,6 +82,15 @@ if (Meteor.isClient) {
       console.log("Total db entries: "+Pallets.find({}).count());
       console.log("Search term: "+Session.get("searchTerm"));
       console.log(this);
+      if (Session.equals("displaySize", 'large')) {
+        Session.set("displaySize", 'small');
+        console.log("Display is now small");
+      }
+      else {
+        Session.set("displaySize", 'large');
+        console.log("Displa is now large");
+      }
+      
       // template data, if any, is available in 'this'
       if (typeof console !== 'undefined') {
         console.log("You pressed the button");
