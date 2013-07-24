@@ -32,7 +32,7 @@
 }
 
 .moveFrom {
-  border: 1px solid red;
+  border: 2px dashed blue;
 }
 .moveTo {
   border: 2px solid blue;
@@ -67,8 +67,14 @@
   z-index: 2;
 }
 
-.palletEntry {
-  
+.logtype:hover {
+  background-color: yellow;
+}
+.logpallet:hover {
+  background-color: yellow;
+}
+.logmove:hover {
+  background-color: yellow;
 }
 
 #searchbar {

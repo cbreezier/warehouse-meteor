@@ -60,7 +60,6 @@ if (Meteor.isClient) {
 
   Template.shelf.loopShelf = function () {
     var arr = new Array;
-    console.log("Looping through bays "+this.startShelf+" to "+this.endShelf);
     for (var i = this.startShelf; i <= this.endShelf; i++) {
       arr.push({i: i});
     }
@@ -71,7 +70,6 @@ if (Meteor.isClient) {
   Template.shelf.pallets = function (level) {
     start = this.startShelf - 1;
     end = this.endShelf + 1;
-    console.log("Finding: "+start+end+level)
     return Pallets.find({bay: {$gt: start, $lt: end},
                          level: level},
                    {sort: {bay: 1, subbay: 1}});
@@ -114,10 +112,10 @@ if (Meteor.isClient) {
   }
 
   Template.pallet.boxes = function () {
-    console.log(this.type);
-    console.log(StockData.findOne({type: this.type}));
+    //console.log(this.type);
+    //console.log(StockData.findOne({type: this.type}));
     var perbox = StockData.findOne({type: this.type}).perbox;
-    console.log ("boxes: "+this.qty+"\/"+perbox);
+    //console.log ("boxes: "+this.qty+"\/"+perbox);
     return (this.qty/perbox).toFixed(2);
   }
 
@@ -158,10 +156,10 @@ if (Meteor.isClient) {
         var type = pallet.stock[i].type;
         var stock = StockData.findOne({type: type});
         var volume = stock.uLength * stock.uWidth * stock.uHeight;
-        console.log("Add volume: "+volume+"*"+pallet.stock[i].qty);
+        //console.log("Add volume: "+volume+"*"+pallet.stock[i].qty);
         totalVolume += volume*pallet.stock[i].qty;
       }
-      console.log("Volume: "+totalVolume);
+      //console.log("Volume: "+totalVolume);
       return totalVolume/PALLET_MAX_VOLUME*100;
     }
   }
@@ -216,7 +214,7 @@ if (Meteor.isClient) {
   }
 
   Template.menu.totalStock = function () {
-    console.log(Session.equals("selected_pallet", 0));
+    //console.log(Session.equals("selected_pallet", 0));
     return Session.equals("selected_pallet", 0) ? true : false;
   }
 
@@ -344,16 +342,8 @@ if (Meteor.isClient) {
     return LogBook.find();
   }
 
-  Template.logbook.entry = function () {
-    if (this.action === 'Added') {
-      return this.action+" "+this.qty+" "+this.type+" to pallet "+this.pallet;
-    } else if (this.action === 'Removed') {
-      return this.action+" "+this.qty+" "+this.type+" from pallet "+this.pallet;
-    } else if (this.action === 'Moved') {
-      return this.action+" "+this.qty+" "+this.type+" from pallet "+this.palletFrom+" to pallet "+this.palletTo;
-    } else {
-      return this.action+" "+this.qty+" "+this.type+" to pallet "+this.pallet;
-    }
+  Template.logbook.actionEquals = function (action) {
+    return (this.action === action);
   }
 
   Template.logbook.hidden = function () {
@@ -375,6 +365,39 @@ if (Meteor.isClient) {
         console.log("Log is now hidden");
         Session.set("log_hidden", true);
       }
+    },
+
+    'mouseover .logtype' : function (event) {
+      Session.set("searchTerm", event.currentTarget.innerText);
+    },
+    'mouseout .logtype' : function () {
+      Session.set("searchTerm", $('#searchbar').val().trim().toUpperCase());
+    },
+    'click .logtype' : function (event) {
+      $('#searchbar').val(event.currentTarget.innerText);
+    },
+
+    'mouseover .logpallet' : function (event) {
+      var content = event.currentTarget.innerText.split(" ");
+      Session.set("moving", true);
+      Session.set("moveTo", +content[1]);
+    },
+    'mouseout .logpallet' : function () {
+      Session.set("moving", false);
+      Session.set("moveTo", 'none');
+    },
+
+    'mouseover .logmove' : function (event) {
+      var content = event.currentTarget.innerText.split(" ");
+      Session.set("moving", true);
+      console.log("MOVING "+content[1]+content[4]);
+      Session.set("moveFrom", +content[1]);
+      Session.set("moveTo", +content[4]);
+    },
+    'mouseout .logmove' : function () {
+      Session.set("moving", false);
+      Session.set("moveFrom", 'none');
+      Session.set("moveTo", 'none');
     }
   });
 

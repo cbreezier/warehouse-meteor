@@ -187,7 +187,20 @@
   </div>
   <div class="logcontent {{hidden}}">
     {{#each entries}}
-      [{{parsedDate}}] {{entry}}<br>
+      <div class="logentry">
+        [{{parsedDate}}]
+        {{action}} {{qty}}
+        <span class="logtype">{{type}}</span>
+        {{#if actionEquals "Added"}}
+          to <span class="logpallet">pallet {{pallet}}</span>
+        {{/if}}
+        {{#if actionEquals "Removed"}}
+          from <span class="logpallet">pallet {{pallet}}</span>
+        {{/if}}
+        {{#if actionEquals "Moved"}}
+          from <span class="logmove">pallet {{palletFrom}} to pallet {{palletTo}}</span>
+        {{/if}}
+      </div>
     {{/each}}
   </div>
 </template>
