@@ -208,6 +208,10 @@ if (Meteor.isClient) {
     }
   });
 
+  Template.menu.testlink = function () {
+    return "data:application/octet-stream," + encodeURIComponent("test");
+  }
+
   Template.menu.curSelected = function () {
     console.log("curSelected: "+Session.get("selected_pallet"));
     return Pallets.findOne({pID: Session.get("selected_pallet")});
@@ -335,6 +339,38 @@ if (Meteor.isClient) {
       Session.set("selected_action", 'none');
 
       Meteor.call('log', 'Added', qty, type, this.pID, '', comment);
+    },
+
+    'click #backup_restore' : function () {
+      var file = $('#backup_upload').get(0).files[0];
+      var reader = new FileReader();
+      reader.readAsText(file);
+      reader.onload = function () {
+        console.log(this.result);
+        
+        var lines = this.result.split('\n');
+        //check if correct document
+        if (lines[0] === '**WBS Warehouse Pallet Data Backup**') {
+          //continue to parse
+          Meteor.call('resetPallets');
+          console.log("Lines found: "+lines.length);
+          for (var i = 1; i < lines.length; i++) {
+            console.log("curLine: "+lines[i]);
+            curLine = lines[i].split(' ');
+            var pID = curLine[0];
+            var numStockTypes = curLine[1];
+            var stock = [];
+            for (var j = 0; j < numStockTypes; j++) {
+              var type = curLine[2+(2*j)];
+              var qty = +curLine[3+(2*j)];
+              console.log("Adding " + qty+type + " to " + pID);
+              Meteor.call('newStock', +pID, type, qty);
+            }
+          }
+        } else {
+          alert("Wrong file!");
+        }
+      }
     }
   });
 
@@ -541,6 +577,9 @@ if (Meteor.isServer) {
                           comment: comment,
                           date: new Date().getTime()});
         }
+      },
+      'resetPallets': function () {
+        Pallets.update({}, {$set: {stock: []}}, {multi: true});
       }
     });
     if (StockData.find().count() === 0) {

@@ -97,6 +97,9 @@
           {{type}}: {{qty}}
         </div>
       {{/each}}
+      <a href="{{testlink}}">testLink</a>
+      <input type="file" id="backup_upload"/>
+      <input type="button" value="Restore Backup" id="backup_restore"/>
     {{else}}
       <h2>Selected pallet: #{{pID}}</h2>
       <ul>
