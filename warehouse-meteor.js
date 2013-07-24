@@ -162,7 +162,7 @@ if (Meteor.isClient) {
         totalVolume += volume*pallet.stock[i].qty;
       }
       //console.log("Volume: "+totalVolume);
-      return totalVolume/PALLET_MAX_VOLUME*100;
+      return Math.min(100, totalVolume/PALLET_MAX_VOLUME*100);
     }
   }
 
