@@ -97,7 +97,9 @@
           {{type}}: {{qty}}
         </div>
       {{/each}}
-      <a href="{{testlink}}">testLink</a>
+      Generate a backup file:
+      <input type="button" value="Generate" id="backup_generate"/>
+      {{{backupLink}}}
       <input type="file" id="backup_upload"/>
       <input type="button" value="Restore Backup" id="backup_restore"/>
     {{else}}

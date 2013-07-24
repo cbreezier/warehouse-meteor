@@ -31,6 +31,7 @@ if (Meteor.isClient) {
   Session.setDefault("bookout_hidden", true);
   Session.setDefault("current_bookout", 'none');
   Session.setDefault("displaySize", 'small');
+  Session.setDefault("backupData", '');
 
   Handlebars.registerHelper('hSmall', function () {
     return Session.equals("displaySize", 'small') ? "small" : ''
@@ -208,8 +209,15 @@ if (Meteor.isClient) {
     }
   });
 
-  Template.menu.testlink = function () {
-    return "data:application/octet-stream," + encodeURIComponent("test");
+  Template.menu.backupLink = function () {
+    var backupData = Session.get("backupData");
+    if (backupData === '' || Session.equals("timerCount", 0)) {
+      return;
+    }
+
+    var url = "data:application/octet-stream," + encodeURIComponent(backupData);
+
+    return "<a href=\""+url+"\">Download Backup File</a>   "+Session.get("timerCount")+"<br>(Right click and save link as a name of your choice)";
   }
 
   Template.menu.curSelected = function () {
@@ -371,6 +379,34 @@ if (Meteor.isClient) {
           alert("Wrong file!");
         }
       }
+    },
+    'click #backup_generate' : function () {
+      var backupData = "**WBS Warehouse Pallet Data Backup**\n";
+      var allPallets = Pallets.find();
+      allPallets.forEach (function (pallet) {
+        if (pallet.stock.length > 0) {
+          var curPalletData = pallet.pID + ' ';
+          curPalletData += pallet.stock.length + ' ';
+          for (var i = 0; i < pallet.stock.length; i++) {
+            curPalletData += pallet.stock[i].type + ' ';
+            curPalletData += pallet.stock[i].qty + ' ';
+          }
+          backupData += curPalletData + "\n";
+        }
+      });
+      Session.set("backupData", backupData);
+
+      Session.set("timerCount", 11);
+      function timerCountdown() {
+        curTimer = Session.get("timerCount");
+        if (curTimer > 0) {
+          Session.set("timerCount", curTimer - 1);
+          setTimeout(timerCountdown, 1000);
+        } else {
+          Session.set("backupData", '');
+        }
+      }
+      timerCountdown();
     }
   });
 
@@ -523,6 +559,9 @@ if (Meteor.isServer) {
         }
       },
       addStock: function (id, type, qty) {
+        if (qty === 0) {
+          return;
+        }
         //if an entry for this stock type doesn't exist for this pallet
         console.log("Trying to add " + qty + " of " + type + " to " + id);
         if (Meteor.call('stockLevel', id, type) == -1) {
@@ -539,6 +578,9 @@ if (Meteor.isServer) {
         }
       },
       removeStock: function (id, type, qty) {
+        if (qty === 0) {
+          return;
+        }
         console.log("Trying to remove " + qty + " of " + type + " to " + id);
         var curQty = Meteor.call('stockLevel',id, type);
         if (curQty > qty) {
