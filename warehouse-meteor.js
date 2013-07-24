@@ -264,11 +264,7 @@ if (Meteor.isClient) {
       Meteor.call('addStock', this.pallet, this.type, +qty);
       Session.set("selected_action", 'none');
 
-      LogBook.insert({action: 'Added',
-                      qty: qty,
-                      type: this.type,
-                      pallet: this.pallet,
-                      comment: comment});
+      Meteor.call('log', 'Added', qty, this.type, this.pallet, '', comment);
     },
 
     'click .remove' : function () {
@@ -289,11 +285,7 @@ if (Meteor.isClient) {
       Meteor.call('removeStock', this.pallet, this.type, +qty);
       Session.set("selected_action", 'none');
 
-      LogBook.insert({action: 'Removed',
-                      qty: qty,
-                      type: this.type,
-                      pallet: this.pallet,
-                      comment: comment});
+      Meteor.call('log', 'Removed', qty, this.type, this.pallet, '', comment);
     },
 
     'click .move' : function () {
@@ -322,12 +314,7 @@ if (Meteor.isClient) {
       Session.set("moveFrom", 'none');
       Session.set("moveTo", 'none');
 
-      LogBook.insert({action: 'Moved',
-                      qty: qty,
-                      type: this.type,
-                      palletFrom: this.pallet,
-                      palletTo: dest,
-                      comment: comment});
+      Meteor.call('log', 'Moved', qty, this.type, this.pallet, dest, comment);
     },
 
     'click .add-new' : function () {
@@ -349,11 +336,7 @@ if (Meteor.isClient) {
       Meteor.call('addStock', this.pID, type, +qty);
       Session.set("selected_action", 'none');
 
-      LogBook.insert({action: 'Added',
-                      qty: qty,
-                      type: type,
-                      pallet: this.pID,
-                      comment: comment});
+      Meteor.call('log', 'Added', qty, type, this.pID, '', comment);
     }
   });
 
@@ -361,8 +344,26 @@ if (Meteor.isClient) {
     return LogBook.find();
   }
 
+  Template.logbook.entry = function () {
+    if (this.action === 'Added') {
+      return this.action+" "+this.qty+" "+this.type+" to pallet "+this.pallet;
+    } else if (this.action === 'Removed') {
+      return this.action+" "+this.qty+" "+this.type+" from pallet "+this.pallet;
+    } else if (this.action === 'Moved') {
+      return this.action+" "+this.qty+" "+this.type+" from pallet "+this.palletFrom+" to pallet "+this.palletTo;
+    } else {
+      return this.action+" "+this.qty+" "+this.type+" to pallet "+this.pallet;
+    }
+  }
+
   Template.logbook.hidden = function () {
     return Session.equals("log_hidden", true) ? "hidden" : '';
+  }
+
+  Template.logbook.parsedDate = function () {
+    var date = new Date(this.date);
+    return date.getDate() + "/" + date.getMonth() + "/" + date.getFullYear() +
+           " " + date.getHours() + ":" + date.getMinutes();
   }
 
   Template.logbook.events({
@@ -497,6 +498,25 @@ if (Meteor.isServer) {
           }
         } else {
           console.log ("trying to remove more stock than available");
+        }
+      },
+      log: function (action, qty, type, palletFrom, palletTo, comment) {
+        console.log(action + qty + type + palletFrom + palletTo + comment);
+        if (action === 'Moved') {
+          LogBook.insert({action: action,
+                          qty: qty,
+                          type: type,
+                          palletFrom: palletFrom,
+                          palletTo: palletTo,
+                          comment: comment,
+                          date: new Date().getTime()});
+        } else {
+          LogBook.insert({action: action,
+                          qty: qty,
+                          type: type,
+                          pallet: palletFrom,
+                          comment: comment,
+                          date: new Date().getTime()});
         }
       }
     });

@@ -109,6 +109,10 @@
   width: fill;
   overflow: scroll;
   background-color: white;
+  padding-left: 20px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  padding-right: 20px;
 }
 
 .bookout {
