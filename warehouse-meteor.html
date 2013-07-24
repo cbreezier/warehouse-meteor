@@ -97,11 +97,17 @@
           {{type}}: {{qty}}
         </div>
       {{/each}}
-      Generate a backup file:
-      <input type="button" value="Generate" id="backup_generate"/>
-      {{{backupLink}}}
-      <input type="file" id="backup_upload"/>
-      <input type="button" value="Restore Backup" id="backup_restore"/>
+      Generate a pallet backup file:
+      <input type="button" value="Generate" id="backup_generate_pallet"/>
+      {{{backupLinkPallet}}}
+      <input type="file" id="backup_upload_pallet"/>
+      <input type="button" value="Restore Backup" id="backup_restore_pallet"/>
+      <br>
+      Generate a stock backup file:
+      <input type="button" value="Generate" id="backup_generate_stock"/>
+      {{{backupLinkStock}}}
+      <input type="file" id="backup_upload_stock"/>
+      <input type="button" value="Restore Backup" id="backup_restore_stock"/>
     {{else}}
       <h2>Selected pallet: #{{pID}}</h2>
       <ul>

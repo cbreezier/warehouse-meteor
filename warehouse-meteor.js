@@ -31,7 +31,8 @@ if (Meteor.isClient) {
   Session.setDefault("bookout_hidden", true);
   Session.setDefault("current_bookout", 'none');
   Session.setDefault("displaySize", 'small');
-  Session.setDefault("backupData", '');
+  Session.setDefault("backupDataPallet", '');
+  Session.setDefault("backupDataStock", '');
 
   Handlebars.registerHelper('hSmall', function () {
     return Session.equals("displaySize", 'small') ? "small" : ''
@@ -209,15 +210,26 @@ if (Meteor.isClient) {
     }
   });
 
-  Template.menu.backupLink = function () {
-    var backupData = Session.get("backupData");
-    if (backupData === '' || Session.equals("timerCount", 0)) {
+  Template.menu.backupLinkStock = function () {
+    var backupData = Session.get("backupDataStock");
+    if (backupData === '' || Session.equals("timerCountStock", 0)) {
       return;
     }
 
     var url = "data:application/octet-stream," + encodeURIComponent(backupData);
 
-    return "<a href=\""+url+"\">Download Backup File</a>   "+Session.get("timerCount")+"<br>(Right click and save link as a name of your choice)";
+    return "<a href=\""+url+"\">Download Backup File</a>   "+Session.get("timerCountStock")+"<br>(Right click and save link as a name of your choice)";
+  }
+
+  Template.menu.backupLinkPallet = function () {
+    var backupData = Session.get("backupDataPallet");
+    if (backupData === '' || Session.equals("timerCountPallet", 0)) {
+      return;
+    }
+
+    var url = "data:application/octet-stream," + encodeURIComponent(backupData);
+
+    return "<a href=\""+url+"\">Download Backup File</a>   "+Session.get("timerCountPallet")+"<br>(Right click and save link as a name of your choice)";
   }
 
   Template.menu.curSelected = function () {
@@ -349,13 +361,68 @@ if (Meteor.isClient) {
       Meteor.call('log', 'Added', qty, type, this.pID, '', comment);
     },
 
-    'click #backup_restore' : function () {
-      var file = $('#backup_upload').get(0).files[0];
+    'click #backup_restore_stock' : function () {
+      var file = $('#backup_upload_stock').get(0).files[0];
       var reader = new FileReader();
       reader.readAsText(file);
       reader.onload = function () {
-        console.log(this.result);
-        
+        var lines = this.result.split('\n');
+        //check if correct document
+        if (lines[0] === '**WBS Warehouse Stock Data Backup**') {
+          //continue to parse
+          Meteor.call('resetStockData');
+          console.log("Lines found: "+lines.length);
+          for (var i = 1; i < lines.length; i++) {
+            console.log("curLine: "+lines[i]);
+            curLine = lines[i].split(' ');
+            var type = curLine[0];
+            var perbox = curLine[1]
+            var price = curLine[2];
+            var uLength = curLine[3];
+            var uWidth = curLine[4];
+            var uHeight = curLine[5];
+            if (type !== '') {
+              Meteor.call('newStockData', type, perbox, price, uLength, uWidth, uHeight);
+            }
+          }
+        } else {
+          alert("Wrong file!");
+        }
+      }
+    },
+    'click #backup_generate_stock' : function () {
+      var backupData = "**WBS Warehouse Stock Data Backup**\n";
+      var allStockData = StockData.find();
+      allStockData.forEach (function (stock) {
+        var curStockData = stock.type + ' ';
+        curStockData += stock.perbox + ' ';
+        curStockData += stock.price + ' ';
+        curStockData += stock.uLength + ' ';
+        curStockData += stock.uWidth + ' ';
+        curStockData += stock.uHeight;
+
+        backupData += curStockData + "\n";
+      });
+      Session.set("backupDataStock", backupData);
+
+      Session.set("timerCountStock", 11);
+      function timerCountdownStock() {
+        curTimer = Session.get("timerCountStock");
+        if (curTimer > 0) {
+          Session.set("timerCountStock", curTimer - 1);
+          setTimeout(timerCountdownStock, 1000);
+        } else {
+          Session.set("backupDataStock", '');
+        }
+      }
+      timerCountdownStock();
+    },
+
+    'click #backup_restore_pallet' : function () {
+      var file = $('#backup_upload_pallet').get(0).files[0];
+      var reader = new FileReader();
+      reader.readAsText(file);
+      reader.onload = function () {
         var lines = this.result.split('\n');
         //check if correct document
         if (lines[0] === '**WBS Warehouse Pallet Data Backup**') {
@@ -380,7 +447,7 @@ if (Meteor.isClient) {
         }
       }
     },
-    'click #backup_generate' : function () {
+    'click #backup_generate_pallet' : function () {
       var backupData = "**WBS Warehouse Pallet Data Backup**\n";
       var allPallets = Pallets.find();
       allPallets.forEach (function (pallet) {
@@ -394,19 +461,19 @@ if (Meteor.isClient) {
           backupData += curPalletData + "\n";
         }
       });
-      Session.set("backupData", backupData);
+      Session.set("backupDataPallet", backupData);
 
-      Session.set("timerCount", 11);
-      function timerCountdown() {
-        curTimer = Session.get("timerCount");
+      Session.set("timerCountPallet", 11);
+      function timerCountdownPallet() {
+        curTimer = Session.get("timerCountPallet");
         if (curTimer > 0) {
-          Session.set("timerCount", curTimer - 1);
-          setTimeout(timerCountdown, 1000);
+          Session.set("timerCountPallet", curTimer - 1);
+          setTimeout(timerCountdownPallet, 1000);
         } else {
-          Session.set("backupData", '');
+          Session.set("backupDataPallet", '');
         }
       }
-      timerCountdown();
+      timerCountdownPallet();
     }
   });
 
@@ -622,6 +689,12 @@ if (Meteor.isServer) {
       },
       'resetPallets': function () {
         Pallets.update({}, {$set: {stock: []}}, {multi: true});
+      },
+      'resetStockData': function () {
+        StockData.remove({});
+      },
+      'newStockData': function (type, perbox, price, uLength, uWidth, uHeight) {
+        StockData.insert({type: type, perbox: perbox, price: price, uLength: uLength, uWidth: uWidth, uHeight: uHeight});
       }
     });
     if (StockData.find().count() === 0) {
