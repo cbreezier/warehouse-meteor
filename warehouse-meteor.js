@@ -283,10 +283,8 @@ if (Meteor.isClient) {
       searchString = ".add-details input#comment"+this.type;
       var comment = $(searchString).val().trim();
       console.log("added"+qty);
-      Meteor.call('addStock', this.pallet, this.type, +qty);
+      Meteor.call('addStock', this.pallet, this.type, +qty, true, comment);
       Session.set("selected_action", 'none');
-
-      Meteor.call('log', 'Added', qty, this.type, this.pallet, '', comment);
     },
 
     'click .remove' : function () {
@@ -304,10 +302,12 @@ if (Meteor.isClient) {
       searchString = ".remove-details input#comment"+this.type;
       var comment = $(searchString).val().trim();
       console.log("removed"+qty);
-      Meteor.call('removeStock', this.pallet, this.type, +qty);
+      Meteor.call('removeStock', this.pallet, this.type, +qty, true, comment, function (err, data) {
+        if (data === -1) {
+          alert("Cannot remove more than exists");
+        }
+      });
       Session.set("selected_action", 'none');
-
-      Meteor.call('log', 'Removed', qty, this.type, this.pallet, '', comment);
     },
 
     'click .move' : function () {
@@ -329,14 +329,15 @@ if (Meteor.isClient) {
       searchString = ".move-details input#comment"+this.type;
       var comment = $(searchString).val().trim();
       console.log("Moving "+qty+this.type+" to "+dest);
-      Meteor.call('removeStock', this.pallet, this.type, +qty);
-      Meteor.call('addStock', dest, this.type, +qty);
+      Meteor.call('moveStock', this.pallet, dest, this.type, +qty, comment, function (err, data) {
+        if (data === -1) {
+          alert ("Cannot move more stock than available");
+        }
+      });
       Session.set("selected_action", 'none');
       Session.set("moving", false);
       Session.set("moveFrom", 'none');
       Session.set("moveTo", 'none');
-
-      Meteor.call('log', 'Moved', qty, this.type, this.pallet, dest, comment);
     },
 
     'click .add-new' : function () {
@@ -355,10 +356,8 @@ if (Meteor.isClient) {
       searchString = ".add-new-details input#comment-new";
       var comment = $(searchString).val().trim();
       //addStock(this.pID, type, +qty);
-      Meteor.call('addStock', this.pID, type, +qty);
+      Meteor.call('addStock', this.pID, type, +qty, true, comment);
       Session.set("selected_action", 'none');
-
-      Meteor.call('log', 'Added', qty, type, this.pID, '', comment);
     },
 
     'click #backup_restore_stock' : function () {
@@ -625,7 +624,7 @@ if (Meteor.isServer) {
           return -1;
         }
       },
-      addStock: function (id, type, qty) {
+      addStock: function (id, type, qty, log, comment) {
         if (qty === 0) {
           return;
         }
@@ -641,12 +640,16 @@ if (Meteor.isServer) {
         //Update total stock
         if (id !== 0) {
           console.log("Adding to total stock");
-          Meteor.call('addStock', 0, type, qty);
+          Meteor.call('addStock', 0, type, qty, false, '');
+        }
+
+        if (log === true) {
+          Meteor.call('log', 'Added', qty, type, id, '', comment);
         }
       },
-      removeStock: function (id, type, qty) {
+      removeStock: function (id, type, qty, log, comment) {
         if (qty === 0) {
-          return;
+          return -2;
         }
         console.log("Trying to remove " + qty + " of " + type + " to " + id);
         var curQty = Meteor.call('stockLevel',id, type);
@@ -662,10 +665,29 @@ if (Meteor.isServer) {
           Meteor.call('deleteStock', id, type);
           //Update total stock
           if (id !== 0) {
-            Meteor.call('removeStock', 0, type, qty);
+            Meteor.call('removeStock', 0, type, qty, false);
           }
         } else {
+          log = false;
           console.log ("trying to remove more stock than available");
+          return -1;
+        }
+        if (log === true) {
+          Meteor.call('log', 'Removed', qty, type, id, '', comment);
+        }
+      },
+      moveStock: function (palletFrom, palletTo, type, qty, comment) {
+        var code = Meteor.call('removeStock', palletFrom, type, qty, false, '');
+        if (code == -1) {
+          //removed more than available
+          return -1
+        } else if (code === -2) {
+          //removed 0
+          return -2;
+        } else {
+          Meteor.call('addStock', palletTo, type, qty, false, '');
+          Meteor.call('log', 'Moved', qty, type, palletFrom, palletTo, comment);
+          return 0;
         }
       },
       log: function (action, qty, type, palletFrom, palletTo, comment) {
