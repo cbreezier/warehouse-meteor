@@ -490,8 +490,15 @@ if (Meteor.isClient) {
 
   Template.logbook.parsedDate = function () {
     var date = new Date(this.date);
+    date.getMinutes();
+    var minutes = '';
+    if (date.getMinutes() < 10) {
+      minutes = '0'+date.getMinutes();
+    } else {
+      minutes = date.getMinutes();
+    }
     return date.getDate() + "/" + date.getMonth() + "/" + date.getFullYear() +
-           " " + date.getHours() + ":" + date.getMinutes();
+           " " + date.getHours() + ":" + minutes;
   }
 
   Template.logbook.events({
