@@ -144,6 +144,10 @@
   background-color: white;
 }
 
+#bookoutitems {
+  border: 1px solid black;
+}
+
 .add {
   background-color: green;
 }

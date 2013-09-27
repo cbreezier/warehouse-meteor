@@ -1,6 +1,7 @@
 Pallets = new Meteor.Collection("pallets");
 StockData = new Meteor.Collection("stockdata");
 LogBook = new Meteor.Collection("logbook");
+BookOuts = new Meteor.Collection("bookouts");
 
 var PALLET_MAX_VOLUME = 120*120*160;
 
@@ -561,6 +562,11 @@ if (Meteor.isClient) {
 
   Template.bookout.no_current_bookout = function () {
     return Session.equals("current_bookout", 'none');
+  }
+
+  Template.bookout.current_bookout = function () {
+    console.log("current_bookout: "+Session.get("current_bookout"));
+    return BookOuts.findOne({invoiceNum: Session.get("current_bookout")});
   }
 
   Template.bookout.events({
