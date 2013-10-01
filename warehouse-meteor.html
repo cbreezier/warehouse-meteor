@@ -183,17 +183,27 @@
   <div class="bookoutcontent {{hidden}}">
     {{#if no_current_bookout}}
       <input type="button" value="New Bookout" class="button newBookout"/>
+      <input type="text" id="createBookoutNumber" class="field">
       <input type="button" value="Select Bookout" class="button selectBookout"/>
     {{else}}
       {{#with current_bookout}}
-        Invoice Number: <input type="text" id="bookoutNumber"><br>
+        <!--Invoice Number: <input type="text" id="bookoutNumber"><br>-->
+        Invoice Number: #{{invoiceNum}}<br>
         Company: <input type="text" id="bookoutCompany"><br>
         <div id="bookoutitems">
-          
+          Items:<br>
+          {{#each itemType}}
+            Type: {{type}}: {{totalQty}} in total<input type="button" value="Remove Item" class="button removeItemType"/><br>
+            {{#each location}}
+              &nbsp;&nbsp;&nbsp;*Pallet #{{pallet}}: {{qty}}<input type="button" value="Change" class="button changePalletFrom"/><br>
+            {{/each}}
+          {{/each}}
+          <input type="button" value="Add Items" class="button addBookoutItems"/>
         </div>
         Order:
         <input type="button" value="Confirm Bookout" class="button confirmBookout"/>
         <input type="button" value="Cancel Bookout" class="button cancelBookout"/>
+        <input type="button" value="Delete Bookout" class="button deleteBookout"/>
       {{/with}}
     {{/if}}
   </div>

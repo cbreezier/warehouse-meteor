@@ -566,7 +566,19 @@ if (Meteor.isClient) {
 
   Template.bookout.current_bookout = function () {
     console.log("current_bookout: "+Session.get("current_bookout"));
-    return BookOuts.findOne({invoiceNum: Session.get("current_bookout")});
+    return BookOuts.findOne({invoiceNum: +Session.get("current_bookout")});
+  }
+
+  Template.bookout.itemType = function () {
+    return BookOuts.findOne({invoiceNum: +Session.get("current_bookout")}).items;
+  }
+  Template.bookout.location = function () {
+    var items = BookOuts.findOne({invoiceNum: +Session.get("current_bookout")}).items;
+    for (var i = 0; i < items.length; i++) {
+      if (items[i].type == this.type) {
+        return items[i].from;
+      }
+    }
   }
 
   Template.bookout.events({
@@ -580,11 +592,18 @@ if (Meteor.isClient) {
       }
     },
     'click .newBookout' : function () {
-      Session.set("current_bookout", '');
+      var invoiceNum = $('.bookoutcontent #createBookoutNumber').val();
+      Meteor.call('newBookout', +invoiceNum);
+      Session.set("current_bookout", invoiceNum);
     },
     'keyup #bookoutCompany' : function () {
       var companyName = $('#bookoutCompany').val().trim();
-      Session.set("current_bookout", companyName);
+      //Session.set("current_bookout", companyName);
+    },
+
+    'click .addBookoutItems' : function() {
+      console.log("Added bookout items");
+      Meteor.call('addBookoutItems', 333, 'EM18LED', 10, 4);
     },
 
     'click .confirmBookout' : function() {
@@ -594,6 +613,11 @@ if (Meteor.isClient) {
       $('#bookoutCompany').val('');
       Session.set("current_bookout", 'none');
       Session.set("bookout_hidden", true);
+    },
+    'click .deleteBookout' : function() {
+      Session.set("current_bookout", 'none');
+      Session.set("bookout_hidden", true);
+      Meteor.call('deleteBookout', this.invoiceNum);
     }
   });
 }
@@ -730,6 +754,28 @@ if (Meteor.isServer) {
       },
       'newStockData': function (type, perbox, price, uLength, uWidth, uHeight) {
         StockData.insert({type: type, perbox: perbox, price: price, uLength: uLength, uWidth: uWidth, uHeight: uHeight});
+      },
+
+      newBookout: function (invoiceNum) {
+        console.log("newBookout " + invoiceNum);
+        BookOuts.insert({invoiceNum: invoiceNum,
+                        date: new Date().getTime(),
+                        company: '',
+                        items: []});
+      },
+      deleteBookout: function (invoiceNum) {
+        console.log("deleteBookout " + invoiceNum);
+        BookOuts.remove({invoiceNum: invoiceNum});
+      },
+      addBookoutItems: function (invoiceNum, type, qty, from) {
+        if (!BookOuts.findOne({invoiceNum: invoiceNum, "items.type": type})) {
+          BookOuts.update({invoiceNum: invoiceNum},
+                          {$push: {items: {type: type, totalQty: 0, from: []}}});
+        }
+        BookOuts.update({invoiceNum: invoiceNum, "items.type": type},
+                        {$set: {"items.$.type": type},
+                         $inc: {"items.$.totalQty": qty},
+                         $push: {"items.$.from": {pallet: from, qty: qty}}});
       }
     });
     if (StockData.find().count() === 0) {
