@@ -185,6 +185,11 @@
       <input type="button" value="New Bookout" class="button newBookout"/>
       <input type="text" id="createBookoutNumber" class="field">
       <input type="button" value="Select Bookout" class="button selectBookout"/>
+      <select id="list-bookouts">
+        {{#each listBookouts}}
+          <option>{{invoiceNum}}</option>
+        {{/each}}
+      </select>
     {{else}}
       {{#with current_bookout}}
         <!--Invoice Number: <input type="text" id="bookoutNumber"><br>-->

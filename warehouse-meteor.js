@@ -563,10 +563,12 @@ if (Meteor.isClient) {
   Template.bookout.no_current_bookout = function () {
     return Session.equals("current_bookout", 'none');
   }
-
   Template.bookout.current_bookout = function () {
     console.log("current_bookout: "+Session.get("current_bookout"));
     return BookOuts.findOne({invoiceNum: +Session.get("current_bookout")});
+  }
+  Template.bookout.listBookouts = function () {
+    return BookOuts.find();
   }
 
   Template.bookout.itemType = function () {
@@ -594,6 +596,10 @@ if (Meteor.isClient) {
     'click .newBookout' : function () {
       var invoiceNum = $('.bookoutcontent #createBookoutNumber').val();
       Meteor.call('newBookout', +invoiceNum);
+      Session.set("current_bookout", invoiceNum);
+    },
+    'click .selectBookout' : function () {
+      var invoiceNum = $('.bookoutcontent #list-bookouts').val();
       Session.set("current_bookout", invoiceNum);
     },
     'keyup #bookoutCompany' : function () {
