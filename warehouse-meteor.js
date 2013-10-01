@@ -574,6 +574,19 @@ if (Meteor.isClient) {
   Template.bookout.itemType = function () {
     return BookOuts.findOne({invoiceNum: +Session.get("current_bookout")}).items;
   }
+  Template.bookout.totalQty = function () {
+    var items = BookOuts.findOne({invoiceNum: +Session.get("current_bookout")}).items;
+    for (var i = 0; i < items.length; i++) {
+      if (items[i].type == this.type) {
+        var fromArr = items[i].from;
+        var totalQty = 0;
+        for (var j = 0; j < fromArr.length; j++) {
+          totalQty += fromArr[j].qty;
+        }
+        return totalQty;
+      }
+    }
+  }
   Template.bookout.location = function () {
     var items = BookOuts.findOne({invoiceNum: +Session.get("current_bookout")}).items;
     for (var i = 0; i < items.length; i++) {
@@ -600,7 +613,9 @@ if (Meteor.isClient) {
     },
     'click .selectBookout' : function () {
       var invoiceNum = $('.bookoutcontent #list-bookouts').val();
-      Session.set("current_bookout", invoiceNum);
+      if (invoiceNum) {
+        Session.set("current_bookout", invoiceNum);
+      }
     },
     'keyup #bookoutCompany' : function () {
       var companyName = $('#bookoutCompany').val().trim();
@@ -613,7 +628,11 @@ if (Meteor.isClient) {
     },
 
     'click .confirmBookout' : function() {
-
+      var companyName = $('#bookoutCompany').val();
+      Meteor.call('updateBookoutName', this.invoiceNum, companyName);
+      $('#bookoutCompany').val('');
+      Session.set("current_bookout", 'none');
+      Session.set("bookout_hidden", true);
     },
     'click .cancelBookout' : function() {
       $('#bookoutCompany').val('');
@@ -776,12 +795,13 @@ if (Meteor.isServer) {
       addBookoutItems: function (invoiceNum, type, qty, from) {
         if (!BookOuts.findOne({invoiceNum: invoiceNum, "items.type": type})) {
           BookOuts.update({invoiceNum: invoiceNum},
-                          {$push: {items: {type: type, totalQty: 0, from: []}}});
+                          {$push: {items: {type: type, from: []}}});
         }
         BookOuts.update({invoiceNum: invoiceNum, "items.type": type},
-                        {$set: {"items.$.type": type},
-                         $inc: {"items.$.totalQty": qty},
-                         $push: {"items.$.from": {pallet: from, qty: qty}}});
+                        {$push: {"items.$.from": {pallet: from, qty: qty}}});
+      },
+      updateBookoutName: function (invoiceNum, name) {
+        BookOuts.update({invoiceNum: invoiceNum}, {$set: {company: name}});
       }
     });
     if (StockData.find().count() === 0) {
