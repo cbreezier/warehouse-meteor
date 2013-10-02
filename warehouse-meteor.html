@@ -198,16 +198,18 @@
         <div id="bookoutitems">
           Items:<br>
           {{#each itemType}}
-            Type: {{type}}: {{totalQty}} in total<input type="button" value="Remove Item" class="button removeItemType"/><br>
+            Type: {{type}}: {{totalQty}} in total<input type="button" value="Remove Item" class="button removeItemType" {{checkCommit 'commit'}}/><br>
             {{#each location}}
-              &nbsp;&nbsp;&nbsp;*Pallet #{{pallet}}: {{qty}}<input type="button" value="Change" class="button changePalletFrom"/><br>
+              &nbsp;&nbsp;&nbsp;*Pallet #{{pallet}}: <input type="text" value="{{qty}}" class="qtyPalletFrom"><input type="button" value="Change" class="button changePalletFrom" disabled=true/><br>
             {{/each}}
           {{/each}}
-          <input type="button" value="Add Items" class="button addBookoutItems"/>
+          <input type="button" value="Add Items" class="button addBookoutItems" {{checkCommit 'commit'}}/>
         </div>
         Order:
         <input type="button" value="Done" class="button confirmBookout"/>
         <input type="button" value="Delete Bookout" class="button deleteBookout"/>
+        <input type="button" value="Commit" class="button commit" {{checkCommit 'commit'}}/>
+        <input type="button" value="Revert" class="button revert" {{checkCommit 'revert'}}/>
       {{/with}}
     {{/if}}
   </div>

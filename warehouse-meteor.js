@@ -556,6 +556,25 @@ if (Meteor.isClient) {
     }
   }
 
+  Template.bookout.checkCommit = function (commitOrRevert) {
+    var committed = false;
+    if (this.committed != undefined) {
+      committed = this.committed;
+    } else {
+      committed = BookOuts.findOne({invoiceNum: this.invoiceNum}).committed;
+    }
+
+    if (commitOrRevert == 'commit') {
+      if (committed) {
+        return 'disabled';
+      }
+    } else {
+      if (!committed) {
+        return 'disabled';
+      }
+    }
+  }
+
   Template.bookout.hidden = function () {
     return Session.equals("bookout_hidden", true) ? "hidden" : '';
   }
@@ -630,6 +649,14 @@ if (Meteor.isClient) {
       console.log("Removing item "+this.type+" from invoice #"+this.invoiceNum);
       Meteor.call('removeItemType', this.invoiceNum, this.type);
     },
+    'keyup .qtyPalletFrom' : function() {
+      console.log($(this));
+      if ($(this).siblings('.changePalletFrom').disabled) {
+        $(this).siblings('.changePalletFrom').disabled = false;
+        Session.set("numChanged", Session.get("numChanged") + 1);
+        console.log("numChanged session variable is now "+Session.get("numChanged"));
+      }
+    },
 
     'click .confirmBookout' : function() {
       var companyName = $('#bookoutCompany').val();
@@ -642,6 +669,12 @@ if (Meteor.isClient) {
       Session.set("current_bookout", 'none');
       Session.set("bookout_hidden", true);
       Meteor.call('deleteBookout', this.invoiceNum);
+    },
+    'click .commit' : function() {
+      Meteor.call('commitBookout', this.invoiceNum, true);
+    },
+    'click .revert' : function() {
+      Meteor.call('commitBookout', this.invoiceNum, false);
     }
   });
 }
@@ -785,6 +818,7 @@ if (Meteor.isServer) {
         BookOuts.insert({invoiceNum: invoiceNum,
                         date: new Date().getTime(),
                         company: '',
+                        committed: false,
                         items: []});
       },
       deleteBookout: function (invoiceNum) {
@@ -805,6 +839,31 @@ if (Meteor.isServer) {
       },
       updateBookoutName: function (invoiceNum, name) {
         BookOuts.update({invoiceNum: invoiceNum}, {$set: {company: name}});
+      },
+      commitBookout: function (invoiceNum, commit) {
+        BookOuts.update({invoiceNum: invoiceNum}, {$set: {committed: commit}});
+        var invoice = BookOuts.findOne({invoiceNum: invoiceNum});
+        var items = invoice.items;
+        for (var i = 0; i < items.length; i++) {
+          var curItem = items[i];
+          for (var j = 0; j < curItem.from.length; j++) {
+            if (commit) {
+              Meteor.call('removeStock',
+                          curItem.from[j].pallet,
+                          curItem.type,
+                          curItem.from[j].qty,
+                          true,
+                          'BOOKOUT #'+invoiceNum+' - '+invoice.company);
+            } else {
+              Meteor.call('addStock',
+                          curItem.from[j].pallet,
+                          curItem.type,
+                          curItem.from[j].qty,
+                          true,
+                          'BOOKOUT #'+invoiceNum+' - '+invoice.company);
+            }
+          }
+        }
       }
     });
     if (StockData.find().count() === 0) {
