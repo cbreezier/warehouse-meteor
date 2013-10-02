@@ -626,15 +626,14 @@ if (Meteor.isClient) {
       console.log("Added bookout items");
       Meteor.call('addBookoutItems', 333, 'EM18LED', 10, 4);
     },
+    'click .removeItemType' : function() {
+      console.log("Removing item "+this.type+" from invoice #"+this.invoiceNum);
+      Meteor.call('removeItemType', this.invoiceNum, this.type);
+    },
 
     'click .confirmBookout' : function() {
       var companyName = $('#bookoutCompany').val();
       Meteor.call('updateBookoutName', this.invoiceNum, companyName);
-      $('#bookoutCompany').val('');
-      Session.set("current_bookout", 'none');
-      Session.set("bookout_hidden", true);
-    },
-    'click .cancelBookout' : function() {
       $('#bookoutCompany').val('');
       Session.set("current_bookout", 'none');
       Session.set("bookout_hidden", true);
@@ -795,10 +794,14 @@ if (Meteor.isServer) {
       addBookoutItems: function (invoiceNum, type, qty, from) {
         if (!BookOuts.findOne({invoiceNum: invoiceNum, "items.type": type})) {
           BookOuts.update({invoiceNum: invoiceNum},
-                          {$push: {items: {type: type, from: []}}});
+                          {$push: {items: {invoiceNum: invoiceNum, type: type, from: []}}});
         }
         BookOuts.update({invoiceNum: invoiceNum, "items.type": type},
-                        {$push: {"items.$.from": {pallet: from, qty: qty}}});
+                        {$push: {"items.$.from": {invoiceNum: invoiceNum, pallet: from, qty: qty}}});
+      },
+      removeItemType: function (invoiceNum, type) {
+        console.log("Removing item "+type+" from invoice #"+invoiceNum)
+        BookOuts.update({"items.invoiceNum": invoiceNum}, {$pull: {items: {type: type}}});
       },
       updateBookoutName: function (invoiceNum, name) {
         BookOuts.update({invoiceNum: invoiceNum}, {$set: {company: name}});
