@@ -203,7 +203,16 @@
               &nbsp;&nbsp;&nbsp;*Pallet #{{pallet}}: <input type="text" value="{{qty}}" class="qtyPalletFrom"><input type="button" value="Change" class="button changePalletFrom" disabled=true/><br>
             {{/each}}
           {{/each}}
-          <input type="button" value="Add Items" class="button addBookoutItems" {{checkCommit 'commit'}}/>
+          <input type="button" value="Add Items" class="button addBookoutItems" {{checkCommit 'commit'}}/><br>
+          <div id="addBookoutItems" class="{{add_items_hidden}}">
+            <select class="select bookout-add">
+              {{#each stockTypes}}
+                <option>{{type}}</option>
+              {{/each}}
+            </select>
+            <input type="text" id="addBookoutQty">
+            <input type="button" value="Choose Pallet" class="button choosePallet"/>
+          </div>
         </div>
         Order:
         <input type="button" value="Done" class="button confirmBookout"/>

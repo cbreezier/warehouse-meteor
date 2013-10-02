@@ -30,6 +30,7 @@ if (Meteor.isClient) {
   Session.setDefault("moveTo", 'none');
   Session.setDefault("log_hidden", true);
   Session.setDefault("bookout_hidden", true);
+  Session.setDefault("add_items_hidden", true);
   Session.setDefault("current_bookout", 'none');
   Session.setDefault("displaySize", 'small');
   Session.setDefault("backupDataPallet", '');
@@ -191,7 +192,19 @@ if (Meteor.isClient) {
       if (id === undefined) {
         id = this.pallet;
       }
-      if (Session.equals("moving", false)) {
+      if (Session.equals("moving", true)) {
+        Session.set("moveTo", id);
+      } else if (Session.equals("selected_action", "choose_pallet")) {
+        Meteor.call('addBookoutItems',
+                    +Session.get("current_bookout"),
+                    Session.get("choose_pallet_type"),
+                    +Session.get("choose_pallet_qty"),
+                    id);
+        Session.set("selected_action", 'none');
+        Session.set("bookout_hidden", false);
+        Session.set("searchTerm", '');
+        Session.set("add_items_hidden", true);
+      } else {
         if (Session.equals("selected_pallet", id)) {
           //If it's already selected, select total stock
           Session.set("selected_pallet", 0);
@@ -200,8 +213,6 @@ if (Meteor.isClient) {
           Session.set("selected_pallet", id);
           console.log("Selected: " + id);
         }
-      } else {
-        Session.set("moveTo", id);
       }
     },
     'mouseover': function () {
@@ -578,6 +589,9 @@ if (Meteor.isClient) {
   Template.bookout.hidden = function () {
     return Session.equals("bookout_hidden", true) ? "hidden" : '';
   }
+  Template.bookout.add_items_hidden = function () {
+    return Session.equals("add_items_hidden", true) ? "hidden" : '';
+  }
 
   Template.bookout.no_current_bookout = function () {
     return Session.equals("current_bookout", 'none');
@@ -615,6 +629,10 @@ if (Meteor.isClient) {
     }
   }
 
+  Template.bookout.stockTypes = function () {
+    return StockData.find({}, {sort: {type: 1}});
+  }
+
   Template.bookout.events({
     'click .bookoutbar' : function () {
       if (Session.equals("bookout_hidden", true)) {
@@ -642,8 +660,17 @@ if (Meteor.isClient) {
     },
 
     'click .addBookoutItems' : function() {
-      console.log("Added bookout items");
-      Meteor.call('addBookoutItems', 333, 'EM18LED', 10, 4);
+      //Meteor.call('addBookoutItems', 333, 'EM18LED', 10, 4);
+      Session.set("add_items_hidden", false);
+    },
+    'click .choosePallet' : function() {
+      Session.set("bookout_hidden", true);
+      Session.set("selected_action", 'choose_pallet');
+      var type = $('.bookout-add').val();
+      var qty = $('#addBookoutQty').val().trim();
+      Session.set("choose_pallet_type", type);
+      Session.set("choose_pallet_qty", qty);
+      Session.set("searchTerm", type);
     },
     'click .removeItemType' : function() {
       console.log("Removing item "+this.type+" from invoice #"+this.invoiceNum);
@@ -664,14 +691,17 @@ if (Meteor.isClient) {
       $('#bookoutCompany').val('');
       Session.set("current_bookout", 'none');
       Session.set("bookout_hidden", true);
+      Session.set("add_items_hidden", true);
     },
     'click .deleteBookout' : function() {
       Session.set("current_bookout", 'none');
       Session.set("bookout_hidden", true);
+      Session.set("add_items_hidden", true);
       Meteor.call('deleteBookout', this.invoiceNum);
     },
     'click .commit' : function() {
       Meteor.call('commitBookout', this.invoiceNum, true);
+      Session.set("add_items_hidden", true);
     },
     'click .revert' : function() {
       Meteor.call('commitBookout', this.invoiceNum, false);
@@ -826,6 +856,7 @@ if (Meteor.isServer) {
         BookOuts.remove({invoiceNum: invoiceNum});
       },
       addBookoutItems: function (invoiceNum, type, qty, from) {
+        console.log("Adding bookout items: #"+invoiceNum+" "+type+qty+" from "+from);
         if (!BookOuts.findOne({invoiceNum: invoiceNum, "items.type": type})) {
           BookOuts.update({invoiceNum: invoiceNum},
                           {$push: {items: {invoiceNum: invoiceNum, type: type, from: []}}});
