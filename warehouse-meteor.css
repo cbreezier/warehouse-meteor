@@ -186,3 +186,8 @@
 .hidden {
   display: none;
 }
+
+
+.add-new {
+  border: 1px solid red;
+}

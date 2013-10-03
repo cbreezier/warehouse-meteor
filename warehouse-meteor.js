@@ -357,13 +357,15 @@ if (Meteor.isClient) {
       Session.set("moving", false);
       if (Session.equals("selected_action", this.pallet + this.type + "add-new")) {
         Session.set("selected_action", 'none');
+        console.log("Closing add-new");
       } else {
         Session.set("selected_action", this.pallet + this.type + "add-new");
+        console.log("Opening add-new");
       }
     },
     'click .updateAddNew' : function () {
       var searchString = ".add-new-details input#qty-new";
-      var type = $('select.add-new').val();
+      var type = $('select.add-new-dropdown').val();
       var qty = $(searchString).val().trim();
       searchString = ".add-new-details input#comment-new";
       var comment = $(searchString).val().trim();
